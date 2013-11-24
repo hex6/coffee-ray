@@ -13,14 +13,16 @@ public class Raytracer {
 	public int height;
 	public int width;
 
+	public boolean running = true;
+
 	int cameraPos;
 
-	public boolean running = true;
+	final int MAX_REFLECTIONS = 2;
 
 	public Sphere[] spheres;
 	public Light[] lights;
 
-	public float vectordist;
+	// public float vectordist;
 
 	public Raytracer(int w, int h) {
 
@@ -69,70 +71,91 @@ public class Raytracer {
 				int color = 0;
 				int reflections = 0;
 
-				while (reflections < 1) {
+				Vector hitVector;
+
+				Ray currentRay = new Ray(new Vector(x, y, cameraPos), new Vector(0, 0, 1));
+
+				Sphere sphere = null;
+				float minDistance = 10000.0f;
+				float distance;
+				
+				while (reflections < MAX_REFLECTIONS) {
 
 					// Create a ray originating from the screen
 					// going straight forward to negative-z space
-					Ray ray = new Ray(new Vector(x, y, cameraPos), new Vector(0, 0, 1));
-
-					Vector hitVector;
-					Ray reflection = null;
 
 					for (Sphere s : spheres) {
 						// Check if the ray hits a sphere
-						if (intersecting(ray, s)) {
+						distance = intersecting(currentRay, s);
+						if (distance > 0 && distance < minDistance) {
 
-							hitVector = Vector.add(ray.position, ray.direction.scale(vectordist));
-
-							// Vector hitVector = new Vector(x,y,vectordist);
-
-							Vector normal = Vector.sub(hitVector, spheres[0].center).scale(
-									hitVector.magnitude() - spheres[0].center.magnitude());
-
-							// Vector normal = new
-							// Vector(x,y,vectordist).normalize();
-
-							Vector refVec = Vector.sub(ray.direction, normal.scale(2 * Vector.dot(normal, ray.direction)));
-
-							reflection = new Ray(hitVector, refVec);
-							// color = 0x00FFFFFF;
+							sphere = s;
+							minDistance = distance;
 						}
 					}
-					
 
-					if (reflection == null) {
+					if (sphere == null) {
 						break;
 					}
 
-					if (intersecting(reflection, lights[0].sphere)) {
+					// hitVector = Vector.add(ray.position,
+					// ray.direction.scale(minDistance));
 
-						hitVector = Vector.add(reflection.position, reflection.direction.normalize());
+					hitVector = new Vector(x, y, minDistance);
 
-						Vector centerDist = Vector.sub(lights[0].sphere.center, hitVector);
-
-						float intensity = centerDist.magnitude() /  lights[0].sphere.radius;
-
-
-						color = (int) (0xFF * intensity)&0xFF;
-						color = (color << 16) + (color << 8) + (color);
-						
-					}
+//					color += sphere.color;
 					
-					if (intersecting(ray, lights[0].sphere)) {
-						 color = 0x00FFFFFF;		
+//					Vector normal = Vector.sub(hitVector, sphere.center).scale(1/Vector.sub(hitVector, sphere.center).magnitude());
+
+					Vector normal = Vector.sub(hitVector, sphere.center).normalize();
+					
+					// Vector normal = new Vector(x, y, minDistance);
+
+					Vector refVec = Vector.sub(hitVector, normal.scale(2 * Vector.dot(normal, currentRay.direction)));
+
+					
+					currentRay = new Ray(hitVector, refVec);
+
+
+					for (Light l : lights) {
+						Vector dir = Vector.sub(l.sphere.center, refVec).normalize();
+						
+						
+						Ray shadowRay = new Ray(hitVector, dir);
+		
+						distance = intersecting(currentRay, l.sphere);
+						if (distance > 0) {
+
+//							hitVector = Vector.add(currentRay.position, currentRay.direction.normalize());
+							Vector reflection = Vector.add(currentRay.position, currentRay.direction.scale(distance));
+							
+							Vector centerDir = Vector.sub(l.sphere.center, hitVector);
+							Vector centerDist = Vector.sub(centerDir, reflection);
+							
+//							float intensity = Vector.dot(hitVector.normalize(),normal.normalize())*sphere.color;
+							float intensity = centerDir.magnitude() / l.sphere.radius;
+							
+							color = (int) (0xFF * intensity)&0xFF;
+//							color = (int) intensity;
+							color = (color << 16) | (color << 8) | (color);
+
+						}
 					}
 
 					// color = color << 16 + color << 8 + color;
-					renderer.setPixel(x, y, color);
+
 					reflections++;
 				}
+
+				// ray = reflection;
+				renderer.setPixel(x, y, color);
 
 			}
 		}
 
 	}
 
-	public boolean intersecting(Ray ray, Sphere sph) {
+	public float intersecting(Ray ray, Sphere sph) {
 
 		float t;
 		Vector d = ray.direction;
@@ -142,36 +165,47 @@ public class Raytracer {
 		// and c is the center of the sphere
 		Vector v = Vector.sub(ray.position, sph.center);
 
-		t = Vector.dot(v, d) * Vector.dot(v, d) - Vector.dot(v, v) + r * r;
-
-		// System.out.println(t);
+		float vd = Vector.dot(v, d);
+		/* t = (v·d)² - (v²+r²) */
+		t = vd * vd - Vector.dot(v, v) + r * r;
 
 		if (t < 0)
-			return false;
+			return 0;
 
 		t = (float) Math.sqrt(t);
 
 		float t1 = Vector.dot(v, d) + t;
 		float t2 = Vector.dot(v, v) - t;
 
-		t = Math.min(t1, t2);
-		vectordist = t;
-		return true;
-	}
+		 if(t1 > 0.0f && t1 <= t2){
+		 return t1;
+		 } else if (t2 > 0.0f){
+		 return t2;
+		 }
+		
+		 return 0;
 
-	// public float
+//		t = Math.min(t1, t2);
+//		return t;
+
+	}
 
 	public void createTestObjects() {
 
 		spheres = new Sphere[2];
 
 		spheres[0] = new Sphere(new Vector(300, 300, 0), 50);
+		spheres[0].color = 0x00FF0000;
+
 		spheres[1] = new Sphere(new Vector(100, 100, 0), 50);
+		spheres[1].color = 0x00FF00FF;
+		
+		lights = new Light[1];
 
-		lights = new Light[2];
+		lights[0] = new Light(new Vector(700, 300, 0), 100, 0x00FFFFFF);
+		lights[0].color = 0x00FFFFFF;
 
-		lights[0] = new Light(new Vector(500, 300, 0), 100, 0x00FFFFFF);
-		lights[1] = new Light(new Vector(500, 600, 0), 100, 0x00FFFFFF);
+		// lights[1] = new Light(new Vector(500, 600, 0), 100, 0x00FFFFFF);
 
 	}
 

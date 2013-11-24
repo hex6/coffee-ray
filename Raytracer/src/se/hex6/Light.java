@@ -2,6 +2,11 @@ package se.hex6;
 
 public class Light {
 	Sphere sphere;
+	
+	byte r;
+	byte g;
+	byte b;
+	
 	int color;
 
 	Light(Vector pos, int r, int c) {
@@ -9,6 +14,11 @@ public class Light {
 		this.sphere = new Sphere(pos, r);
 
 		this.color = c;
+		
+		r = (byte) (color >> 16);
+		g = (byte) (color >> 8);
+		b = (byte) (color);
+		
 	}
 
 	Light(Sphere s, int c) {
