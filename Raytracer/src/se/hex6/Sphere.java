@@ -18,10 +18,9 @@ public class Sphere {
 		radius = r;
 		color = c;
 		
-		r = (byte) (color >> 16);
-		
-		g = (byte) (color >> 8);
-		b = (byte) (color);
+		this.r = (byte) (color >> 16);
+		this.g = (byte) (color >> 8);
+		this.b = (byte) (color);
 		
 	}
 	
