@@ -11,7 +11,7 @@ public class Light {
 
 	Light(Vector pos, int r, int c) {
 
-		this.sphere = new Sphere(pos, r);
+		this.sphere = new Sphere(pos, r, c);
 
 		this.color = c;
 		

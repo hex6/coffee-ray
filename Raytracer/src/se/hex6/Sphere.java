@@ -12,10 +12,16 @@ public class Sphere {
 	public byte g;
 	public byte b;
 	
-	public Sphere (Vector c, float r){
+	public Sphere (Vector pos, float r, int c){
 		
-		center = c;
+		center = pos;
 		radius = r;
+		color = c;
+		
+		r = (byte) (color >> 16);
+		
+		g = (byte) (color >> 8);
+		b = (byte) (color);
 		
 	}
 	

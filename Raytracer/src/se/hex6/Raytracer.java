@@ -80,6 +80,8 @@ public class Raytracer {
 				float minDistance = 10000.0f;
 				float distance;
 				
+//				float depthLimit = 1;
+				
 				while (reflections < MAX_REFLECTIONS) {
 
 					// Create a ray originating from the screen
@@ -102,7 +104,7 @@ public class Raytracer {
 					// hitVector = Vector.add(ray.position,
 					// ray.direction.scale(minDistance));
 
-					hitVector = new Vector(x, y, (minDistance-0.1f));
+					hitVector = new Vector(x, y, (minDistance));
 
 //					color += sphere.color;
 					
@@ -110,9 +112,14 @@ public class Raytracer {
 
 					Vector normal = Vector.sub(hitVector, sphere.center).normalize();
 					
+					
+					
+					
+					
 					// Vector normal = new Vector(x, y, minDistance);
 
-					Vector refVec = Vector.sub(hitVector, normal.scale(2 * Vector.dot(normal, currentRay.direction)));
+					
+					Vector refVec = Vector.sub(currentRay.direction, normal.scale(2 * Vector.dot(normal, currentRay.direction)));
 
 					
 					currentRay = new Ray(hitVector, refVec);
@@ -127,7 +134,7 @@ public class Raytracer {
 		
 						for(Sphere s : spheres){
 							
-							if(intersecting(shadowRay, s) == 0)
+							if(intersecting(shadowRay, s) != 0  && s != sphere)
 							{
 								inShadow = true;
 								break;
@@ -136,17 +143,26 @@ public class Raytracer {
 						}
 
 						
-						if(inShadow){
+						if(!inShadow){
 							float lambert = Vector.dot(shadowRay.direction, normal);
 							
-							System.out.println(lambert);
-							color = sphere.color;
-//							
-//							r += l.r*lambert;
-//							g += l.g*lambert;
-//							b += l.b*lambert;
-//							
-								r = (byte)0xFF;
+							
+							if(lambert < 0) continue; // lambert = 0;
+							byte test = (byte) (0xFF*lambert);
+//							color = (int) (0x00FFFFFF*lambert);
+//							color = sphere.color;
+//							color = (int) (sphere.color*lambert);
+							
+							r = sphere.r;
+							g = sphere.g;
+							b = sphere.b;
+							
+							
+							r += l.r*lambert;
+							g += l.g*lambert;
+							b += l.b*lambert;
+							
+							color += (r << 16) + (g << 8) + (b);
 								
 								
 //							color = r << 16 | g << 8 | b;
@@ -223,23 +239,24 @@ public class Raytracer {
 
 	public void createTestObjects() {
 
-		spheres = new Sphere[2];
+		spheres = new Sphere[3];
 
-		spheres[0] = new Sphere(new Vector(300, 300, 0), 50);
+		spheres[0] = new Sphere(new Vector(300, 300, 0), 50, 0x00FFFFFF);
 		spheres[0].color = 0x00FFFFFF;
 		spheres[0].r = (byte) 0xFF;
-		spheres[0].g = (byte) 0xFF;
+		spheres[0].g = (byte) 0x00;
 		spheres[0].b = (byte) 0xFF;
 
-		spheres[1] = new Sphere(new Vector(100, 100, 0), 50);
-		spheres[1].color = 0x00FFFFFF;
+		spheres[1] = new Sphere(new Vector(100, 100, 0), 50, 0x00FFFFFF);
+		
+		spheres[2] = new Sphere(new Vector(500, 500, 0), 50, 0x00FFFFFF);
 		
 		lights = new Light[1];
 
-		lights[0] = new Light(new Vector(700, 300, 0), 100, 0x00FFFFFF);
+		lights[0] = new Light(new Vector(500, 300, 0), 100, 0x00FFFFFF);
 		lights[0].color = 0x00FFFFFF;
 
-		// lights[1] = new Light(new Vector(500, 600, 0), 100, 0x00FFFFFF);
+//		lights[1] = new Light(new Vector(100, 500, 0), 100, 0x00FFFFFF);
 
 	}
 
