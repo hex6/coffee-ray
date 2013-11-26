@@ -7,21 +7,22 @@ public class Light {
 	byte g;
 	byte b;
 	
-	int color;
+	Vector color;
+	float intensity;
 
-	Light(Vector pos, int r, int c) {
+	Light(Vector pos, int r, Vector c) {
 
 		this.sphere = new Sphere(pos, r, c);
 
 		this.color = c;
 		
-		r = (byte) (color >> 16);
-		g = (byte) (color >> 8);
-		b = (byte) (color);
+//		r = (byte) (color >> 16);
+//		g = (byte) (color >> 8);
+//		b = (byte) (color);
 		
 	}
 
-	Light(Sphere s, int c) {
+	Light(Sphere s, Vector c) {
 
 		this.sphere = s;
 

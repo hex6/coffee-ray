@@ -12,6 +12,13 @@ public class Vector {
 		this.z = zPos;
 	}
 	
+	
+	public Vector(float value){
+		this.x = value;
+		this.y = value;
+		this.z = value;
+	}
+	
 	public static Vector zero(){
 		return new Vector(0, 0 ,0);
 	}
@@ -25,6 +32,12 @@ public class Vector {
 	public static Vector sub(Vector v1, Vector v2){
 		
 		return new Vector(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+		
+	}
+	
+public static Vector mult(Vector v1, Vector v2){
+		
+		return new Vector(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
 		
 	}
 	

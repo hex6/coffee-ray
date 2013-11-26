@@ -19,37 +19,20 @@ public class Renderer extends Canvas{
 	private int width;
 	private int height;
 	
-	public Frame frame;
 	
 //	public Canvas canvas;
 	
 	public BufferedImage image;
-	Graphics g;
-	
 
 	public Renderer(int w, int h){
 		width = w;
 		height = h;
-		createWindow();
-		
-		
-		
-	}
-	public void createWindow() {
-
-		
-
-		
-//		canvas = new Canvas();
 		
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
 		
 		
-
-//		tracer = new Raytracer(frame.getWidth(), frame.getHeight());
-
-
-
+		
 	}
 	
 	public void setPixel(int x, int y, int rgb){
@@ -59,8 +42,6 @@ public class Renderer extends Canvas{
 	@Override
 	public void paint(Graphics g){
 		
-//		BufferStrategy bs = this.getBufferStrategy();
-//		image.setRGB(100, 100, 255);
 		g.drawImage(image, 0, 0, width, height, null);
 		
 	}
