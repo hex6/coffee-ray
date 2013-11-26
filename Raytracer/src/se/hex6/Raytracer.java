@@ -15,7 +15,7 @@ public class Raytracer {
 
     public boolean running = true;
 
-    final int MAX_REFLECTIONS = 1;
+    final int MAX_REFLECTIONS = 2;
     final float MIN_DISTANCE = 20000.0f;
     final float OFFSET = 1e-4f;
 
@@ -26,16 +26,19 @@ public class Raytracer {
     // new Sphere(new Vector(100, 100, 0), 8, new Vector(1, 1, 1), 0f, 0f),
     // new Sphere(new Vector(600, 500, 0), 8, new Vector(1, 1, 1), 0f, 0f)
     // };
+    // Creates new Spheres with the parameters (Position, radius, color, transparency, reflectivity)
     public Sphere[] spheres = {
-	    new Sphere(new Vector(0, -10000, -20), 10000, new Vector(0.2f), 0f, 0f),
-	    new Sphere(new Vector(0, 0, -25), 4, new Vector(1.0f, 0.32f, 0.36f), 0f, 0.01f),
-	    new Sphere(new Vector(5, -1, -20), 2, new Vector(0.90f, 0.76f, 0.46f), 0f, 0f),
-	    new Sphere(new Vector(5, 0, -30), 3, new Vector(0.65f, 0.77f, 0.97f), 0f, 0f),
-	    new Sphere(new Vector(-5.5f, 0, -20), 3, new Vector(0.90f, 0.90f, 0.90f), 0f, 0f) };
+//	    new Sphere(new Vector(0, -0, -100), 100, new Vector(1), 0f, 0f),
+	    new Sphere(new Vector(0, 0, -25), 4, new Vector(1.0f, 0.32f, 0.36f), 0f, 1f),
+	    new Sphere(new Vector(8, -1, -20), 2, new Vector(0.90f, 0.76f, 0.46f), 0f, 1f),
+	    new Sphere(new Vector(5, 0, -30), 3, new Vector(0.65f, 0.77f, 0.97f), 0f, 1f),
+	    new Sphere(new Vector(-7, 0, -20), 3, new Vector(0.90f, 0.90f, 0.90f), 0f, 1f) };
 
     public Light[] lights = {
     // new Light(new Vector(600, 300, 0), 1, new Vector(1, 1, 1)),
-    new Light(new Vector(0, 20, -30), 3, new Vector(1, 1, 1)) };
+    new Light(new Vector(0, 20, -30), 3, new Vector(1, 1, 1)),
+    new Light(new Vector(-50, 0 , -30), 3, new Vector(1, 1, 1)) 
+    };
 
     public Raytracer(int w, int h) {
 
@@ -119,7 +122,11 @@ public class Raytracer {
 	   
 	
 
-	    color = reflection;
+	    System.out.println("Before: "+color.x);
+	   
+//	    color = Vector.add(color, reflection.scale(sphere.reflectivity));
+	    color = Vector.add(color, reflection);
+	    System.out.println("After: "+color.x);
 	    
 
 
@@ -150,7 +157,7 @@ public class Raytracer {
 		    if (lambert < 0)
 			continue;
 
-		    color = Vector.mult(sphere.color, l.color.scale(lambert));
+		    color = Vector.add(color,Vector.mult(sphere.color, l.color.scale(lambert)));
 		}
 
 	    }
@@ -178,7 +185,7 @@ public class Raytracer {
 
 	float aspectratio = (float) width / (float) height;
 
-	float angle = (float) Math.tan(Math.PI * 0.5 * fov / 180.0f);
+	float angle = (float) Math.tan(Math.PI * fov / 360.0f);
 
 	// Loop through all the coordinates/pixels
 	// and cast a ray straight forward
