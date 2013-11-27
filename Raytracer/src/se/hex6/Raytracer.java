@@ -29,15 +29,15 @@ public class Raytracer {
     // Creates new Spheres with the parameters (Position, radius, color, transparency, reflectivity)
     public Sphere[] spheres = {
 //	    new Sphere(new Vector(0, -0, -100), 100, new Vector(1), 0f, 0f),
-	    new Sphere(new Vector(0, 0, -25), 4, new Vector(1.0f, 0.32f, 0.36f), 0f, 1f),
-	    new Sphere(new Vector(8, -1, -20), 2, new Vector(0.90f, 0.76f, 0.46f), 0f, 1f),
-	    new Sphere(new Vector(5, 0, -30), 3, new Vector(0.65f, 0.77f, 0.97f), 0f, 1f),
-	    new Sphere(new Vector(-7, 0, -20), 3, new Vector(0.90f, 0.90f, 0.90f), 0f, 1f) };
+	    new Sphere(new Vector(0, 0, 25), 4, new Vector(1.0f, 0.32f, 0.36f), 0f, 1f),
+	    new Sphere(new Vector(8, -1, 20), 2, new Vector(0.90f, 0.76f, 0.46f), 0f, 1f),
+	    new Sphere(new Vector(5, 0, 30), 3, new Vector(0.65f, 0.77f, 0.97f), 0f, 1f),
+	    new Sphere(new Vector(-7, 0, 20), 3, new Vector(0.90f, 0.90f, 0.90f), 0f, 1f) };
 
     public Light[] lights = {
     // new Light(new Vector(600, 300, 0), 1, new Vector(1, 1, 1)),
-    new Light(new Vector(0, 20, -30), 3, new Vector(1, 1, 1)),
-    new Light(new Vector(-50, 0 , -30), 3, new Vector(1, 1, 1)) 
+    new Light(new Vector(0, 20, 30), 3, new Vector(1, 1, 1)),
+//    new Light(new Vector(-50, 0 , 30), 3, new Vector(1, 1, 1)) 
     };
 
     public Raytracer(int w, int h) {
@@ -112,26 +112,21 @@ public class Raytracer {
 
 
 	    Vector reflectDir = Vector.sub(currentRay.direction,
-		    normal.scale(2 * Vector.dot(currentRay.direction, normal)))
-		    .normalize();
+		    normal.scale(2 * Vector.dot(currentRay.direction, normal)));
 
 	    Vector reflection = trace(new Ray(Vector.add(hitVector, normal.scale(OFFSET)),
 		    reflectDir), reflections + 1);
 
 	    // if the sphere is transparent make a refraction calculation
 	   
-	
 
-	    System.out.println("Before: "+color.x);
-	   
 //	    color = Vector.add(color, reflection.scale(sphere.reflectivity));
 	    color = Vector.add(color, reflection);
-	    System.out.println("After: "+color.x);
 	    
 
 
 
-	} else {
+	}  else {
 
 	    for (Light l : lights) {
 
@@ -202,7 +197,7 @@ public class Raytracer {
 			* aspectratio;
 		float yy = (1 - 2 * ((y + 0.5f) * invHeight)) * angle;
 
-		Vector rayDir = new Vector(xx, yy, -1).normalize();
+		Vector rayDir = new Vector(xx, yy, 1).normalize();
 
 		Ray ray = new Ray(Vector.zero(), rayDir);
 
@@ -232,6 +227,7 @@ public class Raytracer {
 	// where s is the direction of the ray
 	// and c is the center of the sphere
 	Vector v = Vector.sub(sph.center, ray.position);
+	
 
 	float vd = Vector.dot(v, d);
 	if (vd < 0)
